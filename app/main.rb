@@ -22,7 +22,6 @@ class TetrisGame
       end
     end
 
-
     @color_index = [
       {r: 0, g: 0, b: 0, a: 255},
       {r: 255, g: 0, b: 0, a: 255},
@@ -88,7 +87,6 @@ class TetrisGame
     end
   end
 
-  
   def render_current_piece
     render_piece @current_piece, @current_piece_x, @current_piece_y
   end
@@ -211,7 +209,6 @@ class TetrisGame
     kb = @args.inputs.keyboard
     cn = @args.inputs.controller_one
 
-
     if @gameover
       if kb.key_down.space || cn.key_down.start
         $gtk.reset_next_tick
@@ -219,7 +216,6 @@ class TetrisGame
       end
       return
     end
-
 
     if (kb.key_down.left) || (cn.key_down.left)
       if @current_piece_x > 0
