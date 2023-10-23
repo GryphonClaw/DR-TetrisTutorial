@@ -32,13 +32,6 @@ class TetrisGame
       {r: 255, g: 0, b: 255, a: 255},
       {r: 0, g: 255, b: 255, a: 255},
       {r: 127, g: 127, b: 127, a: 255},
-      # [255, 0, 0],
-      # [0, 255,0],
-      # [0,0,255],
-      # [255,255,0],
-      # [255,0,255],
-      # [0,255,255],
-      # [127,127,127]
     ]
 
     select_next_piece
@@ -102,12 +95,6 @@ class TetrisGame
   
   def render_current_piece
     render_piece @current_piece, @current_piece_x, @current_piece_y
-    # color = [0, 128, 0, 255]
-    # for x in 0..(@current_piece.length - 1) do
-    #   for y in 0..(@current_piece[x].length - 1) do
-    #     render_cube( @current_piece_x + x, @current_piece_y + y, @current_piece[x][y]) if @current_piece[x][y] != 0
-    #   end
-    # end
   end
   
   def render_next_piece
@@ -258,9 +245,7 @@ class TetrisGame
     end
 
     if (kb.key_down.down || kb.key_held.down) || (cn.key_down.down || cn.key_held.down)
-      # if (@current_piece_x + @current_piece.length) <= @grid_w-1
       @next_move -= 10
-      # end
     end
 
     @next_move -= 1
