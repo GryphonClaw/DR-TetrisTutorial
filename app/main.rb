@@ -1,4 +1,4 @@
-$gtk.reset
+$gtk.reset #This should only be used during testing, not during a production build.
 
 class TetrisGame
   @@DEFULAT_BLOCK_SPEED = 30
@@ -13,7 +13,7 @@ class TetrisGame
 
     @current_piece_x = 5
     @current_piece_y = 0
-    # @current_piece = [[1, 1], [1, 1]]
+
     @grid = []
     for x in 0..@grid_w-1 do
       @grid[x] = []
@@ -137,7 +137,6 @@ class TetrisGame
     @current_piece = @next_piece
     X = rand(7) + 1
     @next_piece = case X
-      # @current_piece = case X
       when 1 then [[0, X],[0, X], [X,X]]
       when 2 then [[X, X],[0, X], [0,X]]
       when 3 then [[X, X, X, X]]
