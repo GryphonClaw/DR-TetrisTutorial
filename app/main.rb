@@ -158,9 +158,8 @@ class TetrisGame
     end
     @current_piece_y = 0
     @current_piece_x = 5
-    
-    # see if any rows need to be cleared out
-    for y in 0..@grid_h-1
+
+    for y in 0..@grid_h-1 # see if any rows need to be cleared out
       row_full = true
       for x in 0..@grid_w-1
         if @grid[x][y] == 0
@@ -212,9 +211,8 @@ class TetrisGame
     if @gameover
       if kb.key_down.space || cn.key_down.start
         $gtk.reset_next_tick
-        
       end
-      return
+      return #dont allow any other processing if we are in the gameover state
     end
 
     if (kb.key_down.left) || (cn.key_down.left)
