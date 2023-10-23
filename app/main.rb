@@ -62,10 +62,6 @@ class TetrisGame
   end
 
   def render_grid_border x, y, w, h
-    # x = -1
-    # y = -1
-    # w = @grid_w + 2
-    # h = @grid_h + 2
     color = 7
     for i in x..(x+w)-1 do
       render_cube i, y, color
