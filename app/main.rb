@@ -14,7 +14,7 @@ class TetrisGame
     @current_piece_x = 5
     @current_piece_y = 0
 
-    @grid = []
+    @grid = [] #set the intial grid to zeros ( 0 )
     for x in 0..@grid_w-1 do
       @grid[x] = []
       for y in 0..@grid_h-1 do
@@ -23,18 +23,18 @@ class TetrisGame
     end
 
     @color_index = [
-      {r: 0, g: 0, b: 0, a: 255},
-      {r: 255, g: 0, b: 0, a: 255},
-      {r: 0, g: 255, b: 0, a: 255},
-      {r: 0, g: 0, b: 255, a: 255},
-      {r: 255, g: 255, b: 0, a: 255},
-      {r: 255, g: 0, b: 255, a: 255},
-      {r: 0, g: 255, b: 255, a: 255},
-      {r: 127, g: 127, b: 127, a: 255},
+      {r: 0, g: 0, b: 0, a: 255}, #black
+      {r: 255, g: 0, b: 0, a: 255}, #red
+      {r: 0, g: 255, b: 0, a: 255}, #green
+      {r: 0, g: 0, b: 255, a: 255}, #blue
+      {r: 255, g: 255, b: 0, a: 255}, #yellow
+      {r: 255, g: 0, b: 255, a: 255}, #magenta
+      {r: 0, g: 255, b: 255, a: 255}, #cyan
+      {r: 127, g: 127, b: 127, a: 255}, #grey
     ]
 
-    select_next_piece
-    select_next_piece
+    select_next_piece #selects the inital block
+    select_next_piece #selects the next block
   end
 
   def render_cube x, y, color
@@ -135,7 +135,7 @@ class TetrisGame
     @current_piece = @next_piece
     X = rand(7) + 1
     @next_piece = case X
-      when 1 then [[0, X],[0, X], [X,X]]
+      when 1 then [[0, X],[0, X], [X,X]] 
       when 2 then [[X, X],[0, X], [0,X]]
       when 3 then [[X, X, X, X]]
       when 4 then [[X, 0],[X, X], [0, X]]
@@ -196,12 +196,13 @@ class TetrisGame
   end
   
   def rotate_current_piece_right
-    @current_piece = @current_piece.transpose.map(&:reverse)
-    @current_piece = @current_piece.transpose.map(&:reverse)
-    @current_piece = @current_piece.transpose.map(&:reverse)
-    if (@current_piece_x + @current_piece.length) >= @grid_w
-      @current_piece_x = @grid_w - @current_piece.length
+    3.times do #rotate left 3 times to get a right rotated block
+      #@current_piece = @current_piece.transpose.map(&:reverse)
+      rotate_current_piece_left
     end
+    # if (@current_piece_x + @current_piece.length) >= @grid_w
+    #   @current_piece_x = @grid_w - @current_piece.length
+    # end
   end
 
   def iterate
