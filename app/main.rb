@@ -197,12 +197,8 @@ class TetrisGame
   
   def rotate_current_piece_right
     3.times do #rotate left 3 times to get a right rotated block
-      #@current_piece = @current_piece.transpose.map(&:reverse)
       rotate_current_piece_left
     end
-    # if (@current_piece_x + @current_piece.length) >= @grid_w
-    #   @current_piece_x = @grid_w - @current_piece.length
-    # end
   end
 
   def iterate
