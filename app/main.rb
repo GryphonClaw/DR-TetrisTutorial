@@ -10,7 +10,12 @@ class TetrisGame
     @hold_piece = nil
     @next_move = @@DEFULAT_BLOCK_SPEED
     @score = 0
+
+    #FIXME: Maybe combine these as a state utilizing symbols
+    #game mode vars, shoudl probably be a symbol such as :gameover and :paused
     @gameover = false
+    @paused = false
+    
     @grid_w = 10
     @grid_h = 20
 
@@ -101,13 +106,12 @@ class TetrisGame
     center_x = (8 - @next_piece.length) / 2
     center_y = (8 - @next_piece[0].length) / 2
     
-    render_piece @next_piece, 13 + center_x, 2 + center_y
+    render_piece @next_piece, 13 + center_x, 2 + center_y if !@paused #only render the next piece if we are actively playing
     @args.outputs.labels << {x: (720 / 2 ) + (21 * 30) + center_x, y: 720 - (3 * 30) + 24, text: "Next Piece", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
 
   end
 
   def render_hold_piece
-    #FIXME: !!! Make it so that the piece can only be switched out once per piece placement
     render_grid_border -13, 2, 8, 8
 
     if @hold_piece
@@ -117,21 +121,24 @@ class TetrisGame
       render_piece @hold_piece, 13 + center_x, 2 + center_y
     end
 
-    # @args.outputs.labels << {x: (1280 / 2 ) - (19 * 30) , y: 720 - (3 * 30) + 24, text: "Hold", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
     @args.outputs.labels << {x: (1280 / 2) - (14 * @@BOX_SIZE) , y: 720 - (3 * @@BOX_SIZE) + 24, text: "Hold", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
   end
 
   def render_score
     @args.outputs.labels << {x: 75, y: 75, text: "Score #{@score}", size_enum: 10, r: 255, g: 255, b: 255, a: 255}
-
-    @args.outputs.labels << {x: 200, y: 450, text: "GAME OVER", size_enum: 100, r: 255, g: 255, b: 255, a: 255} if @gameover
+    #Only draw Paused if the game is pasued, draw it twice to give a small "offset" effect
+    @args.outputs.labels << {x: 642, y: 448, text: "PAUSED", size_enum: 100, alignment_enum: 1, r: 200, g: 200, b: 200, a: 255} if @paused
+    @args.outputs.labels << {x: 640, y: 450, text: "PAUSED", size_enum: 100, alignment_enum: 1, r: 255, g: 255, b: 255, a: 255} if @paused
+    #Only draw Game Over if the game is over, draw it twice to give a small "offset" effect
+    @args.outputs.labels << {x: 640, y: 445, text: "GAME OVER", size_enum: 100, alignment_enum: 1, r: 245, g: 245, b: 245, a: 255} if @gameover
+    @args.outputs.labels << {x: 640, y: 450, text: "GAME OVER", size_enum: 100, alignment_enum: 1, r: 255, g: 255, b: 255, a: 255} if @gameover
   end
 
   def render
     render_background
-    render_grid
+    render_grid if !@paused #only render the grid if we are actively playing
     render_next_piece
-    render_current_piece
+    render_current_piece if !@paused #only render the current piece if we are actively playing
     render_hold_piece
     render_score
   end
@@ -206,12 +213,15 @@ class TetrisGame
     
     select_next_piece
 
+    @piece_just_held = false
+
     if current_piece_colliding
       @gameover = true
     end
   end
 
   def swap_hold_piece
+    @piece_just_held = true
     if @hold_piece
       temp_piece = @current_piece
       @current_piece = @hold_piece
@@ -236,9 +246,19 @@ class TetrisGame
     end
   end
 
+  def toggle_paused
+    @paused = !@paused
+  end
+
   def iterate
     kb = @args.inputs.keyboard
     cn = @args.inputs.controller_one
+
+    if (kb.key_down.p || cn.key_down.select) && !@gameover
+      toggle_paused
+    end
+
+    return if @paused
 
     if @gameover
       if kb.key_down.space || cn.key_down.start
