@@ -254,4 +254,6 @@ end
 def tick args
   args.state.game ||= TetrisGame.new(args)
   args.state.game.tick
+
+  args.outputs.labels << {x: 10, y: 690, text: "DragonRuby Version: #{$gtk.version}", r: 255, g: 255, b: 255, a: 255}
 end
