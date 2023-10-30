@@ -2,9 +2,12 @@ $gtk.reset #This should only be used during testing, not during a production bui
 
 class TetrisGame
   @@DEFULAT_BLOCK_SPEED = 30
+
+  @@BOX_SIZE = 30
   def initialize args
     @args = args
     @next_piece = nil
+    @hold_piece = nil
     @next_move = @@DEFULAT_BLOCK_SPEED
     @score = 0
     @gameover = false
@@ -35,10 +38,11 @@ class TetrisGame
 
     select_next_piece #selects the inital block
     select_next_piece #selects the next block
+
+    @piece_just_held = false
   end
 
-  def render_cube x, y, color
-    boxsize = 30
+  def render_cube x, y, color, boxsize = @@BOX_SIZE
     grid_x = (1280 - (@grid_w * boxsize)) / 2
     grid_y = (720 - ((@grid_h-2) * boxsize)) / 2
 
@@ -61,15 +65,15 @@ class TetrisGame
   end
 
   def render_grid_border x, y, w, h
-    color = 7
+    color_index = 7
     for i in x..(x+w)-1 do
-      render_cube i, y, color
-      render_cube i, (y + h) - 1, color
+      render_cube i, y, color_index
+      render_cube i, (y + h) - 1, color_index
     end
 
     for i in y..(y+h)-1 do
-      render_cube x, i, color
-      render_cube (x + w)-1, i, color
+      render_cube x, i, color_index
+      render_cube (x + w)-1, i, color_index
     end
   end
 
@@ -102,6 +106,21 @@ class TetrisGame
 
   end
 
+  def render_hold_piece
+    #FIXME: !!! Make it so that the piece can only be switched out once per piece placement
+    render_grid_border -13, 2, 8, 8
+
+    if @hold_piece
+      center_x = (-44 - @hold_piece.length) / 2
+      center_y = (8 - @hold_piece[0].length) / 2
+
+      render_piece @hold_piece, 13 + center_x, 2 + center_y
+    end
+
+    # @args.outputs.labels << {x: (1280 / 2 ) - (19 * 30) , y: 720 - (3 * 30) + 24, text: "Hold", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
+    @args.outputs.labels << {x: (1280 / 2) - (14 * @@BOX_SIZE) , y: 720 - (3 * @@BOX_SIZE) + 24, text: "Hold", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
+  end
+
   def render_score
     @args.outputs.labels << {x: 75, y: 75, text: "Score #{@score}", size_enum: 10, r: 255, g: 255, b: 255, a: 255}
 
@@ -113,6 +132,7 @@ class TetrisGame
     render_grid
     render_next_piece
     render_current_piece
+    render_hold_piece
     render_score
   end
 
@@ -137,15 +157,19 @@ class TetrisGame
     @next_piece = case X
       when 1 then [[0, X],[0, X], [X,X]] 
       when 2 then [[X, X],[0, X], [0,X]]
-      when 3 then [[X, X, X, X]]
+      when 3 then [[X], [X], [X], [X]]
       when 4 then [[X, 0],[X, X], [0, X]]
       when 5 then [[X, X],[X, X]]
       when 6 then [[0, X],[X, X],[0, X]]
       when 7 then [[0, X],[X, X], [X, 0]]
     end
 
-    @current_piece_x  = 5
-    @current_piece_y  = 0
+    set_current_piece_position 5, 0
+  end
+
+  def set_current_piece_position x = 5, y = 0
+    @current_piece_x  = x
+    @current_piece_y  = y
   end
 
   def plant_current_piece
@@ -156,8 +180,7 @@ class TetrisGame
         end
       end
     end
-    @current_piece_y = 0
-    @current_piece_x = 5
+    set_current_piece_position
 
     for y in 0..@grid_h-1 # see if any rows need to be cleared out
       row_full = true
@@ -185,6 +208,18 @@ class TetrisGame
 
     if current_piece_colliding
       @gameover = true
+    end
+  end
+
+  def swap_hold_piece
+    if @hold_piece
+      temp_piece = @current_piece
+      @current_piece = @hold_piece
+      @hold_piece = temp_piece
+      set_current_piece_position
+    else
+      @hold_piece = @current_piece
+      select_next_piece
     end
   end
 
@@ -232,6 +267,11 @@ class TetrisGame
 
     if (kb.key_down.down || kb.key_held.down) || (cn.key_down.down || cn.key_held.down)
       @next_move -= 10
+    end
+
+    if ((kb.key_down.q) || cn.key_down.select) && !@piece_just_held
+      puts "Should hold piece"
+      swap_hold_piece
     end
 
     @next_move -= 1
