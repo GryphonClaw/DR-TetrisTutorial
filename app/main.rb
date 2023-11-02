@@ -69,16 +69,16 @@ class TetrisGame
     end
   end
 
-  def render_grid_border x, y, w, h
+  def render_grid_border x, y, w, h, boxsize = @@BOX_SIZE
     color_index = 7
     for i in x..(x+w)-1 do
-      render_cube i, y, color_index
-      render_cube i, (y + h) - 1, color_index
+      render_cube i, y, color_index, boxsize
+      render_cube i, (y + h) - 1, color_index, boxsize
     end
 
     for i in y..(y+h)-1 do
-      render_cube x, i, color_index
-      render_cube (x + w)-1, i, color_index
+      render_cube x, i, color_index, boxsize
+      render_cube (x + w)-1, i, color_index, boxsize
     end
   end
 
@@ -87,11 +87,11 @@ class TetrisGame
     render_grid_border -1, -1, @grid_w + 2, @grid_h + 2
   end
 
-  def render_piece piece, piece_x, piece_y
+  def render_piece piece, piece_x, piece_y, boxsize = @@BOX_SIZE
     color = [0, 128, 0, 255]
     for x in 0..(piece.length - 1) do
       for y in 0..(piece[x].length - 1) do
-        render_cube( piece_x + x, piece_y + y, piece[x][y]) if piece[x][y] != 0
+        render_cube( piece_x + x, piece_y + y, piece[x][y], boxsize) if piece[x][y] != 0
       end
     end
   end
@@ -102,26 +102,32 @@ class TetrisGame
   
   def render_next_piece
     #FIXME: !!! don't hardcode these numbers.
-    render_grid_border 13, 2, 8, 8
+    boxsize = 20
+    render_grid_border 22, -3, 8, 8, boxsize
     center_x = (8 - @next_piece.length) / 2
     center_y = (8 - @next_piece[0].length) / 2
     
-    render_piece @next_piece, 13 + center_x, 2 + center_y if !@paused #only render the next piece if we are actively playing
-    @args.outputs.labels << {x: (720 / 2 ) + (21 * 30) + center_x, y: 720 - (3 * 30) + 24, text: "Next Piece", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
+    render_piece @next_piece, 22 + center_x, -3 + center_y, boxsize if !@paused #only render the next piece if we are actively playing
+    @args.outputs.labels << {x: (720 / 2 ) + (23 * 30) + center_x, y: 720 - (5 * boxsize) + 24, text: "Next Piece", size_px: 22, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
 
   end
 
   def render_hold_piece
-    render_grid_border -13, 2, 8, 8
+    boxsize = 20
+    render_grid_border 22, 8, 8, 8, boxsize
 
     if @hold_piece
-      center_x = (-44 - @hold_piece.length) / 2
-      center_y = (8 - @hold_piece[0].length) / 2
+      center_x = (26 - @hold_piece.length) / 2
+      center_y = (20 - @hold_piece[0].length) / 2
 
-      render_piece @hold_piece, 13 + center_x, 2 + center_y
+      render_piece @hold_piece, 13 + center_x, 2 + center_y, boxsize
     end
 
-    @args.outputs.labels << {x: (1280 / 2) - (14 * @@BOX_SIZE) , y: 720 - (3 * @@BOX_SIZE) + 24, text: "Hold", size_px: 48, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
+    @args.outputs.labels << {x: (1280 / 2) - (-21 * boxsize) , y: 720 - (16 * boxsize) + 24, text: "Hold", size_px: 22, r: 255, g: 255, b: 255, a: 255, alignment_enum: 1}
+  end
+
+  def render_statistics
+
   end
 
   def render_score
@@ -141,6 +147,7 @@ class TetrisGame
     render_current_piece if !@paused #only render the current piece if we are actively playing
     render_hold_piece
     render_score
+    render_statistics
   end
 
   def current_piece_colliding
@@ -315,5 +322,5 @@ def tick args
   args.state.game ||= TetrisGame.new(args)
   args.state.game.tick
 
-  args.outputs.labels << {x: 10, y: 690, text: "DragonRuby Version: #{$gtk.version}", r: 255, g: 255, b: 255, a: 255}
+  args.outputs.labels << {x: 10, y: 720-5, text: "DragonRuby Version: #{$gtk.version}", r: 255, g: 255, b: 255, a: 255}
 end
