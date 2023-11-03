@@ -41,10 +41,26 @@ class TetrisGame
       {r: 127, g: 127, b: 127, a: 255}, #grey
     ]
 
+    @game_pieces = [
+      [[0, 1],[0, 1], [1,1]],
+      [[2, 2],[0, 2], [0,2]],
+      [[3], [3], [3], [3]],
+      [[4, 0],[4, 4], [0, 4]],
+      [[5, 5],[5, 5]],
+      [[0, 6],[6, 6],[0, 6]],
+      [[0, 7],[7, 7], [7, 0]]
+    ]
+
+    @statistics = [
+      0, 0, 0, 0, 0, 0, 0
+    ]
+
+
     select_next_piece #selects the inital block
     select_next_piece #selects the next block
 
     @piece_just_held = false
+
   end
 
   def render_cube x, y, color, boxsize = @@BOX_SIZE
@@ -127,11 +143,21 @@ class TetrisGame
   end
 
   def render_statistics
+    render_piece @game_pieces[0], -35, -5, 15
+    render_piece @game_pieces[1], -35, -1, 15
+    render_piece @game_pieces[2], -35, 3, 15
+    render_piece @game_pieces[3], -35, 6, 15
+    render_piece @game_pieces[4], -35, 10, 15
+    render_piece @game_pieces[5], -35, 14, 15
+    render_piece @game_pieces[6], -35, 18, 15
 
+    for i in 0...6 do
+      @args.outputs.labels << {x: 100, y: 720 - 80 - (i * 80), text: "x #{@statistics[i]}", r: 255, g: 255, b: 255, a: 255}
+    end 
   end
 
   def render_score
-    @args.outputs.labels << {x: 75, y: 75, text: "Score #{@score}", size_enum: 10, r: 255, g: 255, b: 255, a: 255}
+    @args.outputs.labels << {x: 75, y: 720, text: "Score #{@score}", size_enum: 10, r: 255, g: 255, b: 255, a: 255}
     #Only draw Paused if the game is pasued, draw it twice to give a small "offset" effect
     @args.outputs.labels << {x: 642, y: 448, text: "PAUSED", size_enum: 100, alignment_enum: 1, r: 200, g: 200, b: 200, a: 255} if @paused
     @args.outputs.labels << {x: 640, y: 450, text: "PAUSED", size_enum: 100, alignment_enum: 1, r: 255, g: 255, b: 255, a: 255} if @paused
@@ -178,6 +204,7 @@ class TetrisGame
       when 7 then [[0, X],[X, X], [X, 0]]
     end
 
+    @statistics[X - 1] += 1
     set_current_piece_position 5, 0
   end
 
@@ -322,5 +349,5 @@ def tick args
   args.state.game ||= TetrisGame.new(args)
   args.state.game.tick
 
-  args.outputs.labels << {x: 10, y: 720-5, text: "DragonRuby Version: #{$gtk.version}", r: 255, g: 255, b: 255, a: 255}
+  args.outputs.labels << {x: 10, y: 24, text: "DragonRuby Version: #{$gtk.version}", r: 255, g: 255, b: 255, a: 255}
 end
